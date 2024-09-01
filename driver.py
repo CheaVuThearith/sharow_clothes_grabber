@@ -1,6 +1,4 @@
-import datetime
 import os
-import random
 import threading
 import time
 
@@ -24,8 +22,8 @@ def make_driver(path: str, name: str) -> webdriver.Chrome:
         "profile.managed_default_content_settings.plugins": 1,  # Allow plugins
         "profile.managed_default_content_settings.popups": 2,  # Block popups (standard practice)
         "profile.managed_default_content_settings.geolocation": 2,  # Block geolocation (optional, depends on need)
-        "profile.managed_default_content_settings.media_stream": 1,  # Allow media stream (needed for Stories/Reels)
-        "profile.managed_default_content_settings.images": 1,  # Enable images (critical for Instagram)
+        # "profile.managed_default_content_settings.media_stream": 1,  # Allow media stream (needed for Stories/Reels)
+        # "profile.managed_default_content_settings.images": 1,  # Enable images (critical for Instagram)
         "profile.managed_default_content_settings.stylesheets": 1,  # Enable CSS (critical for proper page rendering)
         "profile.managed_default_content_settings.fonts": 1,  # Enable fonts (important for proper text rendering)
         "profile.managed_default_content_settings.background_sync": 1,  # Allow background sync (important for notifications and session state)
@@ -36,18 +34,12 @@ def make_driver(path: str, name: str) -> webdriver.Chrome:
     user_data_dir = os.path.normpath(path)
     profile_dir = name
 
-    set_device_metrics_override = {
-        "width": 375,  # Typical mobile screen width
-        "height": 812,  # Typical mobile screen height
-        "deviceScaleFactor": 2,  # A more realistic scale factor for a smoother experience
-        "mobile": True,
-    }
-
     options = uc.ChromeOptions()
     options.add_argument("--disable-notifications")
     options.add_argument("--disable-infobars")
     options.add_argument("--no-sandbox")
     options.add_argument("--disable-gpu")
+    # options.add_argument("--blink-settings=imagesEnabled=false")
 
     options.add_experimental_option("prefs", chrome_prefs)
 
@@ -66,9 +58,6 @@ def make_driver(path: str, name: str) -> webdriver.Chrome:
         download_throughput=100 * 1024 * 1024,  # fast download speed
         upload_throughput=100 * 1024 * 1024,
     )
-    driver.execute_cdp_cmd(
-        "Emulation.setDeviceMetricsOverride", set_device_metrics_override
-    )
 
     return driver
 
@@ -86,18 +75,18 @@ def element_text(driver: webdriver.Chrome, css_selector: str) -> str:
 
 
 def safe_click(driver: webdriver.Chrome, css_selector: str):
-    print(f"looking for {css_selector}")
+    # print(f"looking for {css_selector}")
     try:
         element = find_element(driver, css_selector)
     except Exception as e:
         print(f"could not find {css_selector} because {e}")
         return
     try:
-        print(f"trying to click {css_selector}")
+        # print(f"trying to click {css_selector}")
         element.click()
     except ElementClickInterceptedException:
         if element is not None:
-            print(f"trying to click {css_selector} with js")
+            # print(f"trying to click {css_selector} with js")
             driver.execute_script("arguments[0].click();", element)
 
 
@@ -185,22 +174,29 @@ def catcher(config: dict):
     driver = make_driver(config["profile_path"], config["profile_name"])
     target_link = config["link"]
     driver.get(target_link)
-    print("went to insta")
+    # print("went to insta")
 
-    # prev_post_count = get_post_count(driver)
+    prev_post_count = get_post_count(driver)
 
-    # while prev_post_count >= get_post_count(driver):
-    #     print(f"curr post count is {prev_post_count}")
-    #     prev_post_count = get_post_count(driver)
-    #     driver.refresh()
-    #     time.sleep(random.uniform(0, 0.5))
+    # start_time = datetime.datetime.now()
+
+    while prev_post_count >= get_post_count(driver):
+        # duration = datetime.datetime.now() - start_time
+        # print(f"Time taken to refresh: {duration.total_seconds():.2f} seconds")
+
+        # print(f"curr post count is {prev_post_count}")
+        prev_post_count = get_post_count(driver)
+
+        # time.sleep(random.uniform(0, 0.5))
+        # start_time = datetime.datetime.now()
+        driver.refresh()
 
     # start_time = datetime.datetime.now()
     # print("new post detected")
-    # click_first_post(driver)
+    click_first_post(driver)
 
     # print("commenting")
-    # comment(driver)
+    comment(driver)
     # print("done")
     # duration = datetime.datetime.now() - start_time
     # print(f"Time taken: {duration.total_seconds():.2f} seconds")
