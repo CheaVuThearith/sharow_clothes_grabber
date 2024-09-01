@@ -120,6 +120,39 @@ def comment(driver):
             pass
 
 
+def add_cookies(driver: webdriver.Chrome):
+    cookies = [
+        {"name": "ps_n", "value": "1"},
+        {"name": "datr", "value": "hE8oZoNobLlvHHsqkuUnRn5A"},
+        {"name": "ig_nrcb", "value": "1"},
+        {
+            "name": "shbts",
+            "value": '"1725111200\\05453282054993\\0541756647200:01f719d25294f4cb86b3eb22e24bc25e59dd3d7b1f3417bfc8bce37252a4d91f2fe610b5"',
+        },
+        {"name": "ds_user_id", "value": "68589703012"},
+        {
+            "name": "shbid",
+            "value": '"5688\\05453282054993\\0541756647200:01f74f6827fecbfc0dd7518c4a72a7e019f06831ab041808fc997ac41187a33e17cd34ac"',
+        },
+        {"name": "csrftoken", "value": "POgpK9ZH6ySQvLPEu1VkMWhcWZCOOkH2"},
+        {"name": "ig_did", "value": "0131AC64-B7F2-4371-BB6F-EDB55F9B113B"},
+        {"name": "ps_l", "value": "1"},
+        {"name": "wd", "value": "2560x1355"},
+        {"name": "mid", "value": "ZihPhQALAAFrZdYSHSxbb7ERARyf"},
+        {
+            "name": "sessionid",
+            "value": "68589703012%3AKQ0QuXgg0s7z7g%3A23%3AAYcs5SCuKkDRdC_8dqDrYiWmAjIzM9G-5kA-xS2XBA",
+        },
+        {
+            "name": "rur",
+            "value": '"CCO\\05468589703012\\0541756746016:01f7ad72126d3ea6c18c459b4aeefbb364a053e93de730b32035ac4c51e9fab7819c3463"',
+        },
+    ]
+
+    for cookie in cookies:
+        driver.add_cookie(cookie)
+
+
 def tkinter_input():
     root = tk.Tk()
     root.geometry("200x200")
@@ -174,6 +207,8 @@ def catcher(config: dict):
     driver = make_driver(config["profile_path"], config["profile_name"])
     target_link = config["link"]
     driver.get(target_link)
+    add_cookies(driver)
+    driver.refresh()
     # print("went to insta")
 
     prev_post_count = get_post_count(driver)
